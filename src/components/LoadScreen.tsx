@@ -22,12 +22,14 @@ import { useT } from '../i18n/react';
 
 export function LoadScreen({
   onLoaded,
+  onOpenMigration,
 }: {
   onLoaded: (
     parsed: ParseSuccess,
     sourceText: string,
     origin?: { kind: 'api'; url: string },
   ) => void;
+  onOpenMigration: () => void;
 }): React.JSX.Element {
   const t = useT();
   const [text, setText] = useState('');
@@ -98,7 +100,7 @@ export function LoadScreen({
           <p className="load-lede">
             <Rich text={t.load.lede} />
           </p>
-          <div className="load-cta">
+        <div className="load-cta">
             <button
               type="button"
               className="btn primary big"
@@ -109,8 +111,9 @@ export function LoadScreen({
             >
               {t.load.loadExample}
             </button>
-            <span className="hint">{t.load.exampleHint}</span>
-          </div>
+          <span className="hint">{t.load.exampleHint}</span>
+          <button type="button" className="btn" onClick={onOpenMigration}>{t.migration.title}</button>
+        </div>
         </div>
 
         <div className="or-divider">{t.load.orYourOwn}</div>

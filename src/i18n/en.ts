@@ -154,6 +154,19 @@ export const en: Dict = {
     collapse: 'Collapse',
   },
 
+  migration: {
+    title: 'Structured configuration migration',
+    intro: 'Declared version-chain migration with audited differences. The normal Alertmanager reader remains unchanged.',
+    back: 'Back to editor', config: 'Structured config', rules: 'Locked migration rules',
+    from: 'Data version', to: 'Target version', actor: 'Operator', preflight: 'Run preflight',
+    parseFailed: 'Structured parsing failed.', badRules: 'Rules are not valid JSON/YAML.', stopped: 'Migration stopped.',
+    export: 'Export review', import: 'Import review', newReview: 'New review', batch: 'Accept all pending',
+    search: 'Search stable difference order', fingerprint: 'Workspace fingerprint', ruleFingerprint: 'Rule fingerprint',
+    oldValue: 'Old value', newValue: 'New value / source', sources: 'Source paths', affected: 'Affected branch',
+    manual: 'Manual value (JSON)', saveManual: 'Save manual source', accept: 'Accept', reject: 'Reject', history: 'History', origin: 'Original source location',
+    status: { all: 'All', pending: 'Pending', accepted: 'Accepted', rejected: 'Rejected', conflict: 'Conflict', unknown: 'Unknown' },
+  },
+
   sourceDialog: {
     title: 'Original pasted config (read-only)',
     intro: (lines: number): string =>

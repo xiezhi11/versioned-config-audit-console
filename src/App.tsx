@@ -43,6 +43,7 @@ import { LangContext, useT } from './i18n/react';
 import { Rich } from './i18n/Rich';
 import type { Dict } from './i18n/dict';
 import { LangSwitch } from './components/LangSwitch';
+import { MigrationWorkbench } from './components/MigrationWorkbench';
 import { initialState, labelsToObject, reducer } from './state/store';
 
 type Theme = 'auto' | 'light' | 'dark';
@@ -84,6 +85,7 @@ function Editor(): React.JSX.Element {
   const [showExport, setShowExport] = useState(false);
   const [showSource, setShowSource] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [migrationMode, setMigrationMode] = useState(() => new URLSearchParams(window.location.search).has('migration'));
   // Batch-check state lives here so it survives switching between views.
   const [batch, setBatch] = useState<BatchState>(initialBatchState);
   const { root, source } = state;
@@ -297,22 +299,28 @@ function Editor(): React.JSX.Element {
           dispatch={dispatch}
           onExport={() => setShowExport(true)}
           onSource={() => setShowSource(true)}
+          onMigration={() => { dispatch({ type: 'unload' }); setMigrationMode(true); }}
           t={t}
         />
-        <LoadScreen
-          onLoaded={(parsed, sourceText, origin) => {
-            dispatch({
-              type: 'load',
-              parsed,
-              sourceText,
-              // Diff baseline: the same tree run through our own serializer.
-              baselineYaml: serializeRoute(parsed.root),
-              ...(origin ? { origin: 'api' as const, originUrl: origin.url } : {}),
-            });
-            // The address is useful in the batch check — prefill it right away.
-            if (origin) setBatch((b) => ({ ...b, alertmanagerUrl: origin.url }));
-          }}
-        />
+        {migrationMode ? (
+          <MigrationWorkbench onExit={() => setMigrationMode(false)} />
+        ) : (
+          <LoadScreen
+            onOpenMigration={() => setMigrationMode(true)}
+            onLoaded={(parsed, sourceText, origin) => {
+              dispatch({
+                type: 'load',
+                parsed,
+                sourceText,
+                // Diff baseline: the same tree run through our own serializer.
+                baselineYaml: serializeRoute(parsed.root),
+                ...(origin ? { origin: 'api' as const, originUrl: origin.url } : {}),
+              });
+              // The address is useful in the batch check — prefill it right away.
+              if (origin) setBatch((b) => ({ ...b, alertmanagerUrl: origin.url }));
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -327,6 +335,7 @@ function Editor(): React.JSX.Element {
           dispatch={dispatch}
           onExport={() => setShowExport(true)}
           onSource={() => setShowSource(true)}
+          onMigration={() => { dispatch({ type: 'unload' }); setMigrationMode(true); }}
           t={t}
         />
 
@@ -495,6 +504,7 @@ function Topbar({
   dispatch,
   onExport,
   onSource,
+  onMigration,
   t,
 }: {
   theme: Theme;
@@ -503,6 +513,7 @@ function Topbar({
   dispatch: React.Dispatch<Parameters<typeof reducer>[1]>;
   onExport: () => void;
   onSource: () => void;
+  onMigration: () => void;
   t: Dict;
 }): React.JSX.Element {
   const loaded = state.root !== null;
@@ -563,6 +574,7 @@ function Topbar({
           </button>
         </div>
       )}
+      {!loaded && <button className="btn" onClick={onMigration}>{t.migration.title}</button>}
 
       <div className="topbar-group">
         {loaded && (
